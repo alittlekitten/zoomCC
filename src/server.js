@@ -18,16 +18,16 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`)
 // app.listen(3000, handleListen); // 3000번 포트와 연결
 
 const httpServer = http.createServer(app); // app은 requestlistener 경로 - express application으로부터 서버 생성
-const weServer = SocketIO(server); // localhost:3000/socket.io/socket.io.js로 연결 가능 (socketIO는 websocket의 부가기능이 아니다!!)
+const wsServer = SocketIO(httpServer); // localhost:3000/socket.io/socket.io.js로 연결 가능 (socketIO는 websocket의 부가기능이 아니다!!)
 
 // websocket에 비해 개선점 : 1. 어떤 이벤트든지 전달 가능 2. JS Object를 보낼 수 있음
 wsServer.on("connection", socket => {
-    socket.on("enter_room", msg => {console.log(msg)
-        console.log(msg);
-        setTimeout(() => {
-            doesNotMatch();
-        }, 10000);
-    }); // websocket에 비해 개선점 : 1. 어떤 이벤트든지 전달 가능 2. JS Object를 보낼 수 있음
+    socket.on("enter_room", (roomName, done) => {
+        console.log(roomName);
+        setTimeout(()=>{
+            done("hello from the backend"); // 여기 있는 done 함수는 여기서 실행하지 않는다 - 사용자로부터 함수를 받아서 사용하면 보안문제가 생길 수 있기 때문에
+        }, 15000);
+    });
 })
 
 
