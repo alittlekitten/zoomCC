@@ -17,6 +17,13 @@ app.get("/*", (req, res) => res.redirect("/")) // 홈페이지 내 어느 페이
 const handleListen = () => console.log(`Listening on http://localhost:3000`)
 // app.listen(3000, handleListen); // 3000번 포트와 연결
 
+const httpServer = http.createServer(app);
+const wsServer = new Server(httpServer);
+httpServer.listen(3000, handleListen); // 서버는 ws, http 프로토콜 모두 이해할 수 있게 된다!
+
+
+/* 채팅부분 주석처리
+
 const httpServer = http.createServer(app); // app은 requestlistener 경로 - express application으로부터 서버 생성
 const wsServer = new Server(httpServer, {
     cors: {
@@ -89,6 +96,8 @@ wsServer.on("connection", socket => {
     socket.on("nickname", nickname => socket["nickname"] = nickname);
 });
 
+*/
+
 
 // 웹소켓 사용한 부분 주석처리!
 // const wss = new WebSocket.Server({ server }); // http 서버 위에 webSocket서버 생성, 위의 http로 만든 server는 필수 X - 이렇게 하면 http / ws 서버 모두 같은 3000번 포트를 이용해서 돌릴 수 있다!
@@ -123,5 +132,7 @@ wsServer.on("connection", socket => {
 // }) // socket을 callback으로 받는다! webSocket은 서버와 브라우저 사이의 연결!!!
 
 
-httpServer.listen(3000, handleListen); // 서버는 ws, http 프로토콜 모두 이해할 수 있게 된다!
+
+
+
 
