@@ -21,6 +21,28 @@ const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 httpServer.listen(3000, handleListen); // 서버는 ws, http 프로토콜 모두 이해할 수 있게 된다!
 
+wsServer.on("connection", socket => {
+    socket.on("join_room", (roomName) => {
+        socket.join(roomName);
+        socket.to(roomName).emit("welcome"); // 특정 룸에 이벤트 보내기
+    });
+
+    socket.on("offer", (offer, roomName) => { // offer이벤트가 들어오면, roomName에 있는 사람들에게 offer 이벤트를 전송하면서 offer를 전송한다.
+        socket.to(roomName).emit("offer", offer);
+    });
+
+    socket.on("answer", (answer, roomName) => {
+        socket.to(roomName).emit("answer", answer);
+    });
+
+    socket.on("ice", (ice, roomName) => {
+        socket.to(roomName).emit("ice", ice);
+    })
+});
+
+
+
+
 
 /* 채팅부분 주석처리
 
