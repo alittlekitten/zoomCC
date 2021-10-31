@@ -4,9 +4,11 @@
 
 - Zoom과 비슷하게 영상 및 음성처리까지 구현하는 것이 목표입니다.
 
-- 강의의 0.0 ~ 3.2까지 구현되어 있습니다.
+- 강의의 0.0 ~ 3.11까지 구현되어 있습니다. (11/1 기준 완강하였습니다!)
 
-- 블로그에 7번째 글까지 포스팅되어 있습니다.
+- 블로그에 총 10개의 포스팅으로 정리되어 있습니다.
+
+- 구글의 STUN 서버를 이용하고 있습니다.
 
 ## ⚡ Technical Skills
 <div>
@@ -26,4 +28,4 @@
 
 ## 🖼 구현 이미지
 
-![image](https://user-images.githubusercontent.com/14370441/139556148-d74a5528-4d6b-4753-98ee-3e1dbff00150.png)
+![image](https://user-images.githubusercontent.com/14370441/139596963-51aae7fe-9c9c-4ba6-8f15-93c5758f1b17.png)
