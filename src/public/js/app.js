@@ -20,6 +20,7 @@ let muted = false; // 처음에는 음성을 받음
 let cameraOff = false; // 처음에는 영상을 받음
 let roomName;
 let myPeerConnection; // 누군가 getMedia함수를 불렀을 때와 똑같이 stream을 공유하기 위한 변수
+let myDataChannel;
 
 async function getCameras(){
     try {
@@ -92,7 +93,14 @@ function handleCameraClick() {
 }
 
 async function handleCameraChange() {
-    await getMedia(camerasSelect.value);
+    await getMedia(camerasSelect.value); // video device의 새로운 id로 또 다른 stream을 생성
+    if(myPeerConnection){
+        const videoTrack = myStream.getVideoTracks()[0];
+        const videoSender = myPeerConnection
+            .getSenders()
+            .find(sender => sender.track.kind === "video");
+        videoSender.replaceTrack(videoTrack);
+    }
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
@@ -130,6 +138,9 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 // Socket Code
 
 socket.on("welcome", async () => {
+    myDataChannel = myPeerConnection.createDataChannel("chat"); // offer를 만드는 peer가 DataChannel을 만드는 주체
+    myDataChannel.addEventListener("message", event => console.log(event.data)); // 메세지를 받는 곳
+    console.log("made data channel");
     const offer = await myPeerConnection.createOffer(); // 다른 사용자를 초대하기 위한 초대장!! (내가 누구인지를 알려주는 내용이 들어있음!)
     myPeerConnection.setLocalDescription(offer); // myPeerConnection에 내 초대장의 위치 정보를 연결해 주는 과정 https://developer.mozilla.org/ko/docs/Web/API/RTCPeerConnection/setLocalDescription
     console.log("sent the offer");
@@ -137,6 +148,10 @@ socket.on("welcome", async () => {
 })
 
 socket.on("offer", async (offer) => {
+    myPeerConnection.addEventListener("datachannel", event => { // offer를 받는 쪽에서는 새로운 DataChannel이 있을 때 eventListener를 추가한다
+        myDataChannel = event.channel;
+        myDataChannel.addEventListener("message", event => console.log(event.data)); // 메세지를 받는 곳
+    });
     console.log("received the offer");
     myPeerConnection.setRemoteDescription(offer); // 다른 브라우저의 위치를 myPeerConnection에 연결해 주는 과정
     const answer = await myPeerConnection.createAnswer();
@@ -158,7 +173,19 @@ socket.on("ice", ice => {
 // RTC code
 
 function makeConnection() {
-    myPeerConnection = new RTCPeerConnection(); // peerConnection을 각각의 브라우저에 생성 https://developer.mozilla.org/ko/docs/Web/API/RTCPeerConnection 참조
+    myPeerConnection = new RTCPeerConnection({ // 구글의 STUN 서버를 빌려서 사용!! 테스트용도로만 쓸 것!!
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                    "stun:stun3.l.google.com:19302",
+                    "stun:stun4.l.google.com:19302",
+                ]
+            },
+        ],
+    }); // peerConnection을 각각의 브라우저에 생성 https://developer.mozilla.org/ko/docs/Web/API/RTCPeerConnection 참조
     myPeerConnection.addEventListener("icecandidate", handleIce);
     myPeerConnection.addEventListener("addstream", handleAddStream);
     myStream.getTracks().forEach(track => myPeerConnection.addTrack(track, myStream)); // 영상과 음성 트랙을 myPeerConnection에 추가해줌 -> Peer-to-Peer 연결!!
